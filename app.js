@@ -8,19 +8,33 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var app = express();
 var ticketsModule = require('./public/javascripts/tickets.module.js');
+var isDebug = process.env.isDebug;
 
 // middleware
 function getLog(req, res, next) {
-    console.log('Showing tickets list to user\n');
+    console.log('Showing tickets list to user');
     next();
 }
 function postLog(req, res, next) {
-    console.log('Adding a new ticket to the list\n');
+    console.log('Adding a new ticket to the list');
+    console.log('SUCCESS');
     next();
 }
 function deleteLog(req, res, next) {
-    console.log('Removing a ticket from the list\n');
+    console.log('Removing a ticket with the following ID: ', req.params.id);
+    console.log('SUCCESS');
     next();
+}
+function getByIdLog(req, res, next) {
+    console.log('Showing a ticket with the following ID: ', req.params.id);
+    next();
+}
+
+if (isDebug) {
+    app.get('/tickets', getLog);
+    app.post('/tickets', postLog);
+    app.delete('/tickets', deleteLog);
+    app.get('/tickets/{:id}', getByIdLog);
 }
 
 // view engine setup
@@ -34,10 +48,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.get('/tickets', getLog);
-app.post('/tickets', postLog);
-app.delete('/tickets', deleteLog);
 
 
 app.use(function (req,res,next) {

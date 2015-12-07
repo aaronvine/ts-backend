@@ -1,0 +1,7 @@
+extends layout
+
+block content
+    h1= title
+    form#formRemoveTicket(name="removeticket",method="delete",action="/tickets/")
+        input#inputId(type="text", placeholder="id", name="id")
+        button#btnSubmit(type="submit") submit

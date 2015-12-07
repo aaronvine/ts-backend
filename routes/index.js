@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var validator = require('validator');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -17,21 +18,32 @@ router.get('/tickets/:id', function (req, res, next) {
 });
 /* DELETE ticket by id */
 router.delete('/tickets/:id', function (req, res, next) {
-    res.ticketsModule.removeTicket(req.params.id);
+    req.ticketsModule.removeTicket(req.params.id);
+    res.redirect('tickets');
 });
 /* POST new ticket */
 router.post('/tickets', function (req, res, next) {
     var newTicket = {};
-    newTicket.id =  req.ticketsModule.uuid();
-    newTicket.title = req.body.title;
-    newTicket.content = req.body.content;
-    newTicket.userEmail = req.body.userEmail;
-    req.ticketsModule.addNewTicket(newTicket);
-    res.redirect('tickets');
+    if (validator.isNull(req.body.title) || validator.isNull(req.body.content) || validator.isNull(req.body.userEmail)) {
+        return res.status(500).json('missing details');
+    } else if (!validator.isEmail(req.body.userEmail)) {
+        return res.status(500).json('incorrect email address');
+    } else {
+        newTicket.id =  req.ticketsModule.uuid();
+        newTicket.title = req.body.title;
+        newTicket.content = req.body.content;
+        newTicket.userEmail = req.body.userEmail;
+        req.ticketsModule.addNewTicket(newTicket);
+        res.redirect('tickets');
+    }
 });
 /* GET new ticket page */
-router.get('/newticket', function (req, res) {
-    res.render('newticket', { title: 'Add a new ticket' });
+router.get('/newticket', function (req, res, next) {
+    res.render('newticket', {title: 'Add a new ticket'});
+});
+
+router.get('/removeticket', function (req, res, next) {
+    res.render('removeticket', {title: 'Remove a ticket by id'});
 });
 
 module.exports = router;
