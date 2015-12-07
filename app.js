@@ -4,11 +4,24 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
 var routes = require('./routes/index');
 var users = require('./routes/users');
-
 var app = express();
+var ticketsModule = require('./public/javascripts/tickets.module.js');
+
+// middleware
+function getLog(req, res, next) {
+    console.log('Showing tickets list to user\n');
+    next();
+}
+function postLog(req, res, next) {
+    console.log('Adding a new ticket to the list\n');
+    next();
+}
+function deleteLog(req, res, next) {
+    console.log('Removing a ticket from the list\n');
+    next();
+}
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,14 +35,24 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/tickets', getLog);
+app.post('/tickets', postLog);
+app.delete('/tickets', deleteLog);
+
+
+app.use(function (req,res,next) {
+    req.ticketsModule = ticketsModule;
+    next();
+});
+
 app.use('/', routes);
 app.use('/users', users);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+app.use(function (req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 // error handlers
@@ -37,23 +60,23 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
+    app.use(function (err, req, res, next) {
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: err
+        });
     });
-  });
 }
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
-  });
+app.use(function (err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error', {
+        message: err.message,
+        error: {}
+    });
 });
 
 
