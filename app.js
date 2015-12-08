@@ -11,30 +11,33 @@ var ticketsModule = require('./public/javascripts/tickets.module.js');
 var isDebug = process.env.isDebug;
 
 // middleware
-function getLog(req, res, next) {
-    console.log('Showing tickets list to user');
+function ticketsLog(req, res, next) {
+    if (req.method === 'GET') {
+        console.log('\x1b[33m%s\x1b[0m', '(DEBUG) http GET request: get tickets list');
+    } else if (req.method === 'POST') {
+        console.log('\x1b[33m%s\x1b[0m', '(DEBUG) http POST request: add a new ticket');
+    }
     next();
 }
-function postLog(req, res, next) {
-    console.log('Adding a new ticket to the list');
-    console.log('SUCCESS');
+function ticketsIdLog(req, res, next) {
+    if (req.method === 'GET') {
+        console.log('\x1b[33m%s\x1b[0m', '(DEBUG) http GET request: get ticket by id');
+        console.log('\x1b[33m%s\x1b[0m', '(DEBUG) ticket id: ', req.params.id);
+    } else if (req.method === 'DELETE') {
+        console.log('\x1b[33m%s\x1b[0m', '(DEBUG) http DELETE request: remove a ticket');
+        console.log('\x1b[33m%s\x1b[0m', '(DEBUG) ticket id: ', req.params.id);
+    }
     next();
 }
-function deleteLog(req, res, next) {
-    console.log('Removing a ticket with the following ID: ', req.params.id);
-    console.log('SUCCESS');
-    next();
-}
-function getByIdLog(req, res, next) {
-    console.log('Showing a ticket with the following ID: ', req.params.id);
-    next();
-}
-
 if (isDebug) {
-    app.get('/tickets', getLog);
-    app.post('/tickets', postLog);
-    app.delete('/tickets', deleteLog);
-    app.get('/tickets/{:id}', getByIdLog);
+    app.use(function (req, res, next) {
+        var time = new Date();
+        var timeString = time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
+        console.log('\x1b[36m%s\x1b[0m', '(DEBUG) Time: ' + timeString);
+        next();
+    });
+    app.use('/tickets', ticketsLog);
+    app.use('/tickets/:id', ticketsIdLog);
 }
 
 // view engine setup

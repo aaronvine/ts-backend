@@ -25,9 +25,11 @@ router.delete('/tickets/:id', function (req, res, next) {
 router.post('/tickets', function (req, res, next) {
     var newTicket = {};
     if (validator.isNull(req.body.title) || validator.isNull(req.body.content) || validator.isNull(req.body.userEmail)) {
-        return res.status(500).json('missing details');
+        console.log('\x1b[33m%s\x1b[0m', 'ticket was not added: missing details');
+        return res.status(500).json('ERROR: missing details');
     } else if (!validator.isEmail(req.body.userEmail)) {
-        return res.status(500).json('incorrect email address');
+        console.log('\x1b[33m%s\x1b[0m', 'ticket was not added: incorrect email address');
+        return res.status(500).json('ERROR: incorrect email address');
     } else {
         newTicket.id =  req.ticketsModule.uuid();
         newTicket.title = req.body.title;
@@ -37,13 +39,11 @@ router.post('/tickets', function (req, res, next) {
         res.redirect('tickets');
     }
 });
-/* GET new ticket page */
-router.get('/newticket', function (req, res, next) {
-    res.render('newticket', {title: 'Add a new ticket'});
-});
-
-router.get('/removeticket', function (req, res, next) {
-    res.render('removeticket', {title: 'Remove a ticket by id'});
-});
+// router.get('/newticket', function (req, res, next) {
+//     res.render('newticket', {title: 'Add a new ticket'});
+// });
+// router.get('/removeticket', function (req, res, next) {
+//     res.render('removeticket', {title: 'Remove a ticket by id'});
+// });
 
 module.exports = router;
